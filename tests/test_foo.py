@@ -1,4 +1,4 @@
-from dependency_inspector.foo import foo
+from dependency_inspector.provider import foo
 
 
 def test_foo():
