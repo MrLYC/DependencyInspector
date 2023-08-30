@@ -1,43 +1,70 @@
-
+import sys
 from argparse import ArgumentParser
+from typing import Iterable
 
 import yaml
-from packaging.requirements import Requirement
 from resolvelib import BaseReporter, Resolver
-from resolvelib.resolvers import Result
+from resolvelib.resolvers import ResolutionImpossible, Result
 
-from dependency_inspector.provider import (ArtifactProvider, ArtifactRegistry,
-                                           Candidate)
+from dependency_inspector.model import Artifact, Requirement
+from dependency_inspector.provider import ArtifactProvider
+from dependency_inspector.registry import ArtifactRegistry
 
 
-def display_resolution(result:Result[Requirement, Candidate, str]) -> None:
+def display_resolution(result: Result[Requirement, Artifact, str]) -> None:
     """Print pinned candidates and dependency graph to stdout."""
-    print("\n--- Pinned Candidates ---")
-    for artifact, candidate in result.mapping.items():
-        print(f"{artifact}: {candidate.name} {candidate.version}")
-
-    print("\n--- Dependency Graph ---")
+    print("--- Dependency Graph ---")
     for source in result.graph:
         targets = ", ".join(i for i in result.graph.iter_children(source) if i)
-        print(f"{source} -> {targets}")
+        if source and targets:
+            print(f"{source} -> {targets}")
+        elif not source:
+            print(f"[{targets}]")
+
+    print("\n--- Resolution ---")
+    for artifact, candidate in result.mapping.items():
+        print(f"{candidate.name}=={candidate.version}")
+
+
+def display_error(err: ResolutionImpossible) -> None:
+    print("!!! Resolution Impossible !!!")
+    for c in err.causes:
+        if c.parent:
+            print(f"{c.parent.requirement_string} -> {c.requirement.requirement_string}")
+        else:
+            print(f"[{c.requirement.requirement_string}]")
+
+
+def load_artifacts(configs: Iterable[str]) -> Iterable[Artifact]:
+    for config in configs:
+        with open(config) as f:
+            for artifact in yaml.safe_load_all(f):
+                yield Artifact(**artifact)
 
 
 def main() -> None:
     parser = ArgumentParser()
-    parser.add_argument("-a", "--artifacts", required=True, help="artifacts config file")
+    parser.add_argument("-a", "--artifacts", required=True, action="append", help="artifact configs")
     parser.add_argument("-r", "--requirements", required=True, action="append", help="requirements")
 
     args = parser.parse_args()
-    with open(args.artifacts) as f:
-        artifacts = yaml.safe_load(f)
 
-    registry = ArtifactRegistry(artifacts=artifacts)
+    registry = ArtifactRegistry()
+    for artifact in load_artifacts(args.artifacts):
+        registry.declare_artifact(artifact)
+
     provider = ArtifactProvider(registry=registry)
     reporter = BaseReporter()
-    resolver = Resolver(provider, reporter)
+    resolver = Resolver(provider, reporter)  # type: ignore
 
-    result = resolver.resolve([Requirement(r) for r in args.requirements])
-    display_resolution(result)
+    try:
+        result = resolver.resolve([Requirement.from_requirement_string(r) for r in args.requirements])
+    except ResolutionImpossible as err:
+        display_error(err)
+        sys.exit(-1)
+    else:
+        display_resolution(result)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
