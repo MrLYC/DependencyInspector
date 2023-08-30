@@ -3,8 +3,8 @@ name = "dependency_inspector"
 version = "0.1.1"
 description = "A common dependencies checker/resolver."
 authors = ["MrLYC <fimyikong@gmail.com>"]
-repository = "https://github.com/mrlyc/dependency-inspector"
-documentation = "https://mrlyc.github.io/dependency-inspector/"
+repository = "https://github.com/MrLYC/DependencyInspector"
+documentation = "https://mrlyc.github.io/DependencyInspector/"
 readme = "README.md"
 packages = [{ include = "dependency_inspector" }]
 

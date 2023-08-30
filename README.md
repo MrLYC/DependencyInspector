@@ -1,14 +1,14 @@
 # dependency-inspector
 
-[![Release](https://img.shields.io/github/v/release/mrlyc/dependency-inspector)](https://img.shields.io/github/v/release/mrlyc/dependency-inspector)
-[![Build status](https://img.shields.io/github/actions/workflow/status/mrlyc/dependency-inspector/main.yml?branch=main)](https://github.com/mrlyc/dependency-inspector/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/mrlyc/dependency-inspector/branch/main/graph/badge.svg)](https://codecov.io/gh/mrlyc/dependency-inspector)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/mrlyc/dependency-inspector)](https://img.shields.io/github/commit-activity/m/mrlyc/dependency-inspector)
-[![License](https://img.shields.io/github/license/mrlyc/dependency-inspector)](https://img.shields.io/github/license/mrlyc/dependency-inspector)
+[![Release](https://img.shields.io/github/v/release/MrLYC/DependencyInspector)](https://img.shields.io/github/v/release/MrLYC/DependencyInspector)
+[![Build status](https://img.shields.io/github/actions/workflow/status/MrLYC/DependencyInspector/main.yml?branch=main)](https://github.com/MrLYC/DependencyInspector/actions/workflows/main.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/MrLYC/DependencyInspector/branch/main/graph/badge.svg)](https://codecov.io/gh/MrLYC/DependencyInspector)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/MrLYC/DependencyInspector)](https://img.shields.io/github/commit-activity/m/MrLYC/DependencyInspector)
+[![License](https://img.shields.io/github/license/MrLYC/DependencyInspector)](https://img.shields.io/github/license/MrLYC/DependencyInspector)
 
 A common dependencies checker/resolver.
 
-- **Github repository**: <https://github.com/mrlyc/dependency-inspector/>
+- **Github repository**: <https://github.com/MrLYC/DependencyInspector/>
 - **Documentation** <https://mrlyc.github.io/dependency-inspector/>
 
 ## Installation
