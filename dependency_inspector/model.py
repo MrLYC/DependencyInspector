@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Iterable, List
 
 from packaging.requirements import Requirement as BaseRequirement
 from pydantic import BaseModel, Field, PrivateAttr
@@ -8,6 +8,7 @@ from pydantic.dataclasses import dataclass
 class Requirement(BaseModel):
     name: str
     version: str = ""
+    enabled: bool = True
     _base_requirement: BaseRequirement = PrivateAttr()
 
     class Config:
@@ -15,10 +16,11 @@ class Requirement(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
+        version = self.version.replace(".x", ".*").replace(".*.*", ".*")
         try:
-            self._base_requirement = BaseRequirement(f"{self.name} {self.version}")
+            self._base_requirement = BaseRequirement(f"{self.name} {version}")
         except Exception as e:
-            self._base_requirement = BaseRequirement(f"{self.name}=={self.version}")
+            self._base_requirement = BaseRequirement(f"{self.name}=={version}")
 
     @property
     def requirement_string(self) -> str:
@@ -41,3 +43,10 @@ class Artifact(BaseModel):
     @property
     def requirement_string(self) -> str:
         return f"{self.name}=={self.version}"
+
+    def get_dependencies(self) -> Iterable[Requirement]:
+        for dependency in self.dependencies:
+            if not dependency.enabled:
+                continue
+
+            yield dependency

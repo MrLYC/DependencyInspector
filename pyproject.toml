@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dependency_inspector"
-version = "0.0.1"
+version = "0.1.1"
 description = "A common dependencies checker/resolver."
 authors = ["MrLYC <fimyikong@gmail.com>"]
 repository = "https://github.com/mrlyc/dependency-inspector"
@@ -100,3 +100,6 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["dependency_inspector"]
+
+[tool.poetry.scripts]
+dependency_inspector = "dependency_inspector.main:main"

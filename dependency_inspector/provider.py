@@ -52,4 +52,4 @@ class ArtifactProvider:
         return requirement.is_satisfy(candidate.version)
 
     def get_dependencies(self, candidate: Artifact) -> Iterable[Requirement]:
-        return candidate.dependencies
+        return candidate.get_dependencies()
