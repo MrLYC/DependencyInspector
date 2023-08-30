@@ -20,7 +20,7 @@ def display_resolution(result: Result[Requirement, Artifact, str]) -> None:
             print(f"{source or '*'} --> {targets}")
 
     print("\n--- Resolution ---")
-    for artifact, candidate in result.mapping.items():
+    for candidate in result.mapping.values():
         print(f"{candidate.name}=={candidate.version}")
 
 
@@ -60,7 +60,7 @@ def main() -> None:
     requirements = set(args.requirements) or registry.caches.keys()
     provider = ArtifactProvider(registry=registry)
     reporter = BaseReporter()
-    resolver = Resolver(provider, reporter)  # type: ignore
+    resolver: Resolver = Resolver(provider, reporter)
 
     try:
         result = resolver.resolve([Requirement.from_requirement_string(r) for r in requirements])

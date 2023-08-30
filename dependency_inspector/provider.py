@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import Any, Dict, Iterable, List, Mapping, Protocol, Union
+from typing import Any, Iterable, List, Mapping, Protocol, Union
+
+from resolvelib.providers import AbstractProvider
 
 from .model import Artifact, Requirement
 
@@ -11,7 +13,7 @@ class ArtifactRegistry(Protocol):
 
 
 @dataclass
-class ArtifactProvider:
+class ArtifactProvider(AbstractProvider):
     registry: ArtifactRegistry
 
     def identify(self, requirement_or_candidate: Union[Requirement, Artifact]) -> str:

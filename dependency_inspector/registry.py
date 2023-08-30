@@ -1,8 +1,8 @@
 from collections import defaultdict
-from dataclasses import InitVar, dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass, field
+from typing import Dict, List
 
-from .model import Artifact, Requirement
+from .model import Artifact
 
 
 @dataclass

@@ -2,7 +2,6 @@ from typing import Any, Iterable, List
 
 from packaging.requirements import Requirement as BaseRequirement
 from pydantic import BaseModel, Field, PrivateAttr
-from pydantic.dataclasses import dataclass
 
 
 class Requirement(BaseModel):
@@ -19,7 +18,7 @@ class Requirement(BaseModel):
         version = self.version.replace(".x", ".*").replace(".*.*", ".*")
         try:
             self._base_requirement = BaseRequirement(f"{self.name} {version}")
-        except Exception as e:
+        except Exception:
             self._base_requirement = BaseRequirement(f"{self.name}=={version}")
 
     @property
