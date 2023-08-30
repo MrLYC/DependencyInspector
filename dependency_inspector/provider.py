@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from operator import attrgetter
 from typing import Any, Dict, Iterable, List, Mapping, Protocol, Union
 
-from packaging.utils import canonicalize_name
-
 from .model import Artifact, Requirement
 
 
@@ -17,7 +15,7 @@ class ArtifactProvider:
     registry: ArtifactRegistry
 
     def identify(self, requirement_or_candidate: Union[Requirement, Artifact]) -> str:
-        return canonicalize_name(requirement_or_candidate.name)
+        return requirement_or_candidate.name
 
     def get_preference(
         self,
@@ -49,7 +47,7 @@ class ArtifactProvider:
         return sorted(candidates, key=attrgetter("version"), reverse=True)
 
     def is_satisfied_by(self, requirement: Requirement, candidate: Artifact) -> bool:
-        if canonicalize_name(requirement.name) != candidate.name:
+        if requirement.name != candidate.name:
             return False
         return requirement.is_satisfy(candidate.version)
 
