@@ -1,3 +1,4 @@
+import glob
 import sys
 from argparse import ArgumentParser
 from typing import Iterable
@@ -19,7 +20,7 @@ def display_resolution(result: Result[Requirement, Artifact, str]) -> None:
         if targets:
             print(f"{source or '*'} --> {targets}")
 
-    print("\n--- Resolution ---")
+    print("\n--- Solution ---")
     for candidate in result.mapping.values():
         print(f"{candidate.name}=={candidate.version}")
 
@@ -36,14 +37,15 @@ def display_error(err: ResolutionImpossible) -> None:
     print("\n!!! Resolution Impossible !!!")
 
 
-def load_artifacts(configs: Iterable[str]) -> Iterable[Artifact]:
-    for config in configs:
-        with open(config) as f:
-            for artifact in yaml.safe_load_all(f):
-                if not artifact:
-                    continue
+def load_artifacts(path_patterns: Iterable[str]) -> Iterable[Artifact]:
+    for pattern in path_patterns:
+        for config in glob.glob(pattern):
+            with open(config) as f:
+                for artifact in yaml.safe_load_all(f):
+                    if not artifact:
+                        continue
 
-                yield Artifact(**artifact)
+                    yield Artifact(**artifact)
 
 
 def main() -> None:
