@@ -8,23 +8,24 @@ import yaml
 from resolvelib import BaseReporter, Resolver
 from resolvelib.resolvers import ResolutionImpossible, Result
 
-from dependency_inspector.model import Artifact, Requirement
+from dependency_inspector.model import Artifact, Requirement, Resolution
 from dependency_inspector.provider import ArtifactProvider
 from dependency_inspector.registry import ArtifactRegistry
 
 
-def display_resolution(result: Result[Requirement, Artifact, str]) -> None:
+def display_resolution(resolution: Resolution) -> None:
     """Print pinned candidates and dependency graph to stdout."""
-    print("--- Dependency Graph ---")
+    rendered_graph = "\n".join(resolution.graph)
+    rendered_resolution = "\n".join(resolution.resolution)
+    print(
+        f"""
+--- Dependency Graph ---
+{rendered_graph}
 
-    for source in result.graph:
-        targets = ", ".join(i for i in result.graph.iter_children(source) if i)
-        if targets:
-            print(f"{source or '*'} --> {targets}")
-
-    print("\n--- Solution ---")
-    for candidate in result.mapping.values():
-        print(f"{candidate.name}=={candidate.version}")
+--- Resolution ---
+{rendered_resolution}
+""".strip(),
+    )
 
 
 def display_error(err: ResolutionImpossible) -> None:
@@ -77,7 +78,7 @@ def main() -> None:
         display_error(err)
         sys.exit(-1)
     else:
-        display_resolution(result)
+        display_resolution(Resolution(result=result))
         sys.exit(0)
 
 

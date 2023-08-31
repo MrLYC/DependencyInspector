@@ -3,6 +3,7 @@ from typing import Any, Iterable, List
 from packaging.requirements import Requirement as BaseRequirement
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, Field, PrivateAttr
+from resolvelib.resolvers import Result
 
 
 class Requirement(BaseModel):
@@ -60,3 +61,25 @@ class Artifact(BaseModel):
 
     def __str__(self) -> str:
         return self.requirement_string
+
+
+class Resolution(BaseModel):
+    result: Result[Requirement, Artifact, str]
+
+    @property
+    def graph(self) -> Iterable[str]:
+        result = self.result
+        for source in result.graph:
+            targets = ", ".join(i for i in result.graph.iter_children(source) if i)
+            if targets:
+                yield f"{source or '*'} --> {targets}"
+
+    @property
+    def resolution(self) -> Iterable[str]:
+        for candidate in self.result.mapping.values():
+            yield f"{candidate.name}=={candidate.version}"
+
+    @property
+    def artifacts(self) -> Iterable[Artifact]:
+        for candidate in self.result.mapping.values():
+            yield Artifact(name=candidate.name, version=candidate.version)
