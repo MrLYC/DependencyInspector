@@ -47,11 +47,30 @@ Run this command to resolve the dependencies:
 dependency_inspector --artifacts artifact.yaml      
 ```
 
-> --- Dependency Graph ---  
-> \* --> app-frontend, app-backend  
-> app-frontend --> app-backend  
-> app-backend --> app-frontend  
->   
-> --- Solution ---  
-> app-frontend==1.1.2  
-> app-backend==1.0.10  
+The output is:
+
+```
+--- Dependency Graph ---
+* --> app-frontend, app-backend
+app-frontend --> app-backend
+app-backend --> app-frontend
+
+--- Resolution ---
+app-frontend==1.1.2
+app-backend==1.0.10
+
+--- Artifacts ---
+dependencies:
+- enabled: true
+  name: app-backend
+  version: ~=1.0.10
+name: app-frontend
+version: 1.1.2
+---
+dependencies:
+- enabled: true
+  name: app-frontend
+  version: ~=1.1.2
+name: app-backend
+version: 1.0.10
+```

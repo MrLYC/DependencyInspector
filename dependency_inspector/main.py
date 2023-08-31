@@ -20,15 +20,15 @@ def display_resolution(
 
     if not disable_graph:
         rendered_graph = "\n".join(resolution.graph)
-        print("--- Dependency Graph ---\n", rendered_graph)
+        print("--- Dependency Graph ---", rendered_graph, sep="\n", end="\n\n")
 
     if not disable_resolution:
         rendered_resolution = "\n".join(resolution.resolution)
-        print("\n--- Resolution ---\n", rendered_resolution)
+        print("--- Resolution ---", rendered_resolution, sep="\n", end="\n\n")
 
     if not disable_artifacts:
         rendered_artifacts = yaml.safe_dump_all(i.model_dump() for i in resolution.artifacts)
-        print("\n--- Artifacts ---\n", rendered_artifacts)
+        print("--- Artifacts ---", rendered_artifacts, sep="\n")
 
 
 def display_error(err: ResolutionImpossible) -> None:
