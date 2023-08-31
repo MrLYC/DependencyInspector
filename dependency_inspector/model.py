@@ -1,6 +1,7 @@
 from typing import Any, Iterable, List
 
 from packaging.requirements import Requirement as BaseRequirement
+from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, Field, PrivateAttr
 
 
@@ -22,11 +23,15 @@ class Requirement(BaseModel):
             self._base_requirement = BaseRequirement(f"{self.name}=={version}")
 
     @property
+    def specifier(self) -> SpecifierSet:
+        return self._base_requirement.specifier
+
+    @property
     def requirement_string(self) -> str:
-        return f"{self.name}{str(self._base_requirement.specifier)}"
+        return f"{self.name}{str(self.specifier)}"
 
     def is_satisfy(self, version: str) -> bool:
-        return version in self._base_requirement.specifier
+        return version in self.specifier
 
     @classmethod
     def from_requirement_string(cls, requirement_string: str) -> "Requirement":

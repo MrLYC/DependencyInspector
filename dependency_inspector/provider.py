@@ -15,6 +15,7 @@ class ArtifactRegistry(Protocol):
 @dataclass
 class ArtifactProvider(AbstractProvider):
     registry: ArtifactRegistry
+    prefer_newer: bool = True
 
     def identify(self, requirement_or_candidate: Union[Requirement, Artifact]) -> str:
         return requirement_or_candidate.name
@@ -46,7 +47,7 @@ class ArtifactProvider(AbstractProvider):
             for candidate in self.registry.get_candidates(identifier)
             if candidate.version not in bad_versions and all(r.is_satisfy(candidate.version) for r in real_dependencies)
         )
-        return sorted(candidates, key=attrgetter("version"), reverse=True)
+        return sorted(candidates, key=attrgetter("version"), reverse=self.prefer_newer)
 
     def is_satisfied_by(self, requirement: Requirement, candidate: Artifact) -> bool:
         if requirement.name != candidate.name:

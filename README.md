@@ -9,7 +9,7 @@
 A common dependencies checker/resolver.
 
 - **Github repository**: <https://github.com/MrLYC/DependencyInspector/>
-- **Documentation** <https://mrlyc.github.io/dependency-inspector/>
+- **Documentation** <https://mrlyc.github.io/DependencyInspector/>
 
 ## Installation
 

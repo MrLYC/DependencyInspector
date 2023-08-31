@@ -15,6 +15,7 @@ from dependency_inspector.registry import ArtifactRegistry
 def display_resolution(result: Result[Requirement, Artifact, str]) -> None:
     """Print pinned candidates and dependency graph to stdout."""
     print("--- Dependency Graph ---")
+
     for source in result.graph:
         targets = ", ".join(i for i in result.graph.iter_children(source) if i)
         if targets:
@@ -52,6 +53,7 @@ def main() -> None:
     parser = ArgumentParser()
     parser.add_argument("-a", "--artifacts", required=True, action="append", help="artifact configs")
     parser.add_argument("-r", "--requirements", default=[], action="append", help="requirements to resolve")
+    parser.add_argument("--prefer-older", default=False, action="store_true", help="prefer older versions")
 
     args = parser.parse_args()
 
@@ -60,7 +62,7 @@ def main() -> None:
         registry.declare_artifact(artifact)
 
     requirements = set(args.requirements) or registry.caches.keys()
-    provider = ArtifactProvider(registry=registry)
+    provider = ArtifactProvider(registry=registry, prefer_newer=not args.prefer_older)
     reporter = BaseReporter()
     resolver: Resolver = Resolver(provider, reporter)
 
@@ -72,3 +74,7 @@ def main() -> None:
     else:
         display_resolution(result)
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
