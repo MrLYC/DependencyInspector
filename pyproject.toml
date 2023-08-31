@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dependency_inspector"
-version = "0.1.2"
+version = "0.1.3"
 description = "A common dependencies checker/resolver."
 authors = ["MrLYC <fimyikong@gmail.com>"]
 repository = "https://github.com/MrLYC/DependencyInspector"

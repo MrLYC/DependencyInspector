@@ -13,19 +13,22 @@ from dependency_inspector.provider import ArtifactProvider
 from dependency_inspector.registry import ArtifactRegistry
 
 
-def display_resolution(resolution: Resolution) -> None:
+def display_resolution(
+    resolution: Resolution, disable_graph: bool, disable_resolution: bool, disable_artifacts: bool
+) -> None:
     """Print pinned candidates and dependency graph to stdout."""
-    rendered_graph = "\n".join(resolution.graph)
-    rendered_resolution = "\n".join(resolution.resolution)
-    print(
-        f"""
---- Dependency Graph ---
-{rendered_graph}
 
---- Resolution ---
-{rendered_resolution}
-""".strip(),
-    )
+    if not disable_graph:
+        rendered_graph = "\n".join(resolution.graph)
+        print("--- Dependency Graph ---\n", rendered_graph)
+
+    if not disable_resolution:
+        rendered_resolution = "\n".join(resolution.resolution)
+        print("\n--- Resolution ---\n", rendered_resolution)
+
+    if not disable_artifacts:
+        rendered_artifacts = yaml.safe_dump_all(i.model_dump() for i in resolution.artifacts)
+        print("\n--- Artifacts ---\n", rendered_artifacts)
 
 
 def display_error(err: ResolutionImpossible) -> None:
@@ -57,6 +60,18 @@ def main() -> None:
     parser.add_argument("-r", "--requirements", default=[], action="append", help="requirements to resolve")
     parser.add_argument("--prefer-older", default=False, action="store_true", help="prefer older versions")
     parser.add_argument(
+        "--disable-dependency-graph", default=False, action="store_true", help="disable dependency graph"
+    )
+    parser.add_argument(
+        "--disable-dependency-resolution", default=False, action="store_true", help="disable dependency resolution"
+    )
+    parser.add_argument(
+        "--disable-artifact-resolution",
+        default=False,
+        action="store_true",
+        help="disable artifact resolution",
+    )
+    parser.add_argument(
         "--log-level", default="WARNING", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="log level"
     )
 
@@ -78,7 +93,12 @@ def main() -> None:
         display_error(err)
         sys.exit(-1)
     else:
-        display_resolution(Resolution(result=result))
+        display_resolution(
+            Resolution(result=result),
+            args.disable_dependency_graph,
+            args.disable_dependency_resolution,
+            args.disable_artifact_resolution,
+        )
         sys.exit(0)
 
 
