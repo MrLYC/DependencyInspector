@@ -1,4 +1,5 @@
 import glob
+import logging
 import sys
 from argparse import ArgumentParser
 from typing import Iterable
@@ -54,8 +55,12 @@ def main() -> None:
     parser.add_argument("-a", "--artifacts", required=True, action="append", help="artifact configs")
     parser.add_argument("-r", "--requirements", default=[], action="append", help="requirements to resolve")
     parser.add_argument("--prefer-older", default=False, action="store_true", help="prefer older versions")
+    parser.add_argument(
+        "--log-level", default="WARNING", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="log level"
+    )
 
     args = parser.parse_args()
+    logging.basicConfig(level=args.log_level, stream=sys.stderr)
 
     registry = ArtifactRegistry()
     for artifact in load_artifacts(args.artifacts):

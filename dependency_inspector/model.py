@@ -38,6 +38,9 @@ class Requirement(BaseModel):
         r = BaseRequirement(requirement_string)
         return cls(name=r.name, version=str(r.specifier))
 
+    def __str__(self) -> str:
+        return self.requirement_string
+
 
 class Artifact(BaseModel):
     name: str
@@ -54,3 +57,6 @@ class Artifact(BaseModel):
                 continue
 
             yield dependency
+
+    def __str__(self) -> str:
+        return self.requirement_string

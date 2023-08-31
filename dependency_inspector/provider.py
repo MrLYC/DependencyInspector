@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from operator import attrgetter
 from typing import Any, Iterable, List, Mapping, Protocol, Union
@@ -5,6 +6,8 @@ from typing import Any, Iterable, List, Mapping, Protocol, Union
 from resolvelib.providers import AbstractProvider
 
 from .model import Artifact, Requirement
+
+logger = logging.getLogger(__name__)
 
 
 class ArtifactRegistry(Protocol):
@@ -28,7 +31,9 @@ class ArtifactProvider(AbstractProvider):
         information: Any,
         backtrack_causes: Any,
     ) -> int:
-        return sum(1 for _ in candidates[identifier])
+        preference = sum(1 for _ in candidates[identifier])
+        logger.debug("preference: %s for %s", preference, identifier)
+        return preference
 
     def find_matches(
         self,
@@ -47,12 +52,19 @@ class ArtifactProvider(AbstractProvider):
             for candidate in self.registry.get_candidates(identifier)
             if candidate.version not in bad_versions and all(r.is_satisfy(candidate.version) for r in real_dependencies)
         )
-        return sorted(candidates, key=attrgetter("version"), reverse=self.prefer_newer)
+        results = sorted(candidates, key=attrgetter("version"), reverse=self.prefer_newer)
+        logger.debug("found %s candidates for %s", len(results), identifier)
+
+        return results
 
     def is_satisfied_by(self, requirement: Requirement, candidate: Artifact) -> bool:
         if requirement.name != candidate.name:
             return False
-        return requirement.is_satisfy(candidate.version)
+
+        result = requirement.is_satisfy(candidate.version)
+        logger.debug("check the requirement %s is satisfied by %s: %s", requirement, candidate, result)
+
+        return result
 
     def get_dependencies(self, candidate: Artifact) -> Iterable[Requirement]:
         return candidate.get_dependencies()
