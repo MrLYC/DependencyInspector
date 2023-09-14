@@ -6,7 +6,7 @@ from typing import Iterable
 
 import yaml
 from resolvelib import BaseReporter, Resolver
-from resolvelib.resolvers import ResolutionImpossible, Result
+from resolvelib.resolvers import ResolutionImpossible
 
 from dependency_inspector.model import Artifact, Requirement, Resolution
 from dependency_inspector.provider import ArtifactProvider
@@ -27,8 +27,8 @@ def display_resolution(
         print("--- Resolution ---", rendered_resolution, sep="\n", end="\n\n")
 
     if not disable_artifacts:
-        rendered_artifacts = yaml.safe_dump_all(i.model_dump() for i in resolution.artifacts)
-        print("--- Artifacts ---", rendered_artifacts, sep="\n")
+        rendered_artifacts = yaml.safe_dump_all(i.model_dump(exclude_unset=True) for i in resolution.artifacts)
+        print("--- Snapshot ---", rendered_artifacts, sep="\n")
 
 
 def display_error(err: ResolutionImpossible) -> None:
