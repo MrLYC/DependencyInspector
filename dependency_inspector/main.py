@@ -82,6 +82,7 @@ def main(log_level: str) -> None:
     logging.basicConfig(level=log_level, stream=sys.stderr)
 
 
+@main.add_command
 @click.command()
 @click.option("-a", "--artifacts", default=[], multiple=True, required=True, help="defined artifacts")
 @click.option("-r", "--requirements", default=[], multiple=True, help="requirements to resolve")
@@ -120,6 +121,7 @@ def resolve(
         )
 
 
+@main.add_command
 @click.command()
 @click.option("-a", "--artifacts", default=[], multiple=True, required=True, help="defined artifacts")
 def lint_artifacts(artifacts: List[str]) -> None:
@@ -133,6 +135,4 @@ def lint_artifacts(artifacts: List[str]) -> None:
 
 
 if __name__ == "__main__":
-    main.add_command(resolve)
-    main.add_command(lint_artifacts)
     main()
