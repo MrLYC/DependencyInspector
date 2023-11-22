@@ -50,6 +50,7 @@ class Requirement(BaseModel):
 class Artifact(BaseModel):
     name: str
     version: str
+    description: str = ""
     dependencies: List[Requirement] = Field(default_factory=list)
 
     @property
