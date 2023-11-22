@@ -5,12 +5,18 @@ from typing import Iterable, List
 
 import click
 import yaml
+from pydantic import ValidationError
 from resolvelib import BaseReporter, Resolver
 from resolvelib.resolvers import ResolutionImpossible
 
 from dependency_inspector.model import Artifact, Requirement, Resolution
 from dependency_inspector.provider import ArtifactProvider
 from dependency_inspector.registry import ArtifactRegistry
+
+
+class ArtifactError(Exception):
+    def __init__(self, path: str) -> None:
+        self.path = path
 
 
 def display_resolution(
@@ -45,13 +51,19 @@ def display_error(err: ResolutionImpossible) -> None:
 
 def load_artifacts(path_patterns: Iterable[str]) -> Iterable[Artifact]:
     for pattern in path_patterns:
-        for config in glob.glob(pattern):
-            with open(config) as f:
+        for p in glob.glob(pattern):
+            with open(p) as f:
                 for artifact in yaml.safe_load_all(f):
                     if not artifact:
                         continue
 
-                    yield Artifact(**artifact)
+                    logging.debug("load artifact from: %s", p)
+                    try:
+                        artifact = Artifact(**artifact)
+                    except ValidationError as e:
+                        raise ArtifactError(p) from e
+
+                    yield artifact
 
 
 def load_artifacts_registry(artifacts: Iterable[str]) -> ArtifactRegistry:
@@ -67,9 +79,6 @@ def load_artifacts_registry(artifacts: Iterable[str]) -> ArtifactRegistry:
     "--log-level", default="WARNING", type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]), help="log level"
 )
 def main(log_level: str) -> None:
-    import pdb
-
-    pdb.set_trace()
     logging.basicConfig(level=log_level, stream=sys.stderr)
 
 
@@ -111,6 +120,19 @@ def resolve(
         )
 
 
+@click.command()
+@click.option("-a", "--artifacts", default=[], multiple=True, required=True, help="defined artifacts")
+def lint_artifacts(artifacts: List[str]) -> None:
+    try:
+        for artifact in load_artifacts(artifacts):
+            pass
+    except ArtifactError as e:
+        cause = e.__cause__
+        print(f"artifact path: {e.path}, {cause}")
+        sys.exit(-1)
+
+
 if __name__ == "__main__":
     main.add_command(resolve)
+    main.add_command(lint_artifacts)
     main()
