@@ -31,12 +31,17 @@ class Requirement(BaseModel):
     def specifier(self) -> SpecifierSet:
         return self._specifier
 
+    def combine_specifier(self, specifier:str):
+        self._specifier &= specifier
+
     @property
     def requirement_string(self) -> str:
         return f"{self.name}{str(self._specifier)}"
 
     def is_satisfy(self, version: str) -> bool:
         return version in self._specifier
+
+    
 
     @classmethod
     def from_requirement_string(cls, requirement_string: str) -> "Requirement":
