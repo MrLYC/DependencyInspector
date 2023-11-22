@@ -1,9 +1,9 @@
 import glob
 import logging
 import sys
-from argparse import ArgumentParser
-from typing import Iterable
+from typing import Iterable, List
 
+import click
 import yaml
 from resolvelib import BaseReporter, Resolver
 from resolvelib.resolvers import ResolutionImpossible
@@ -54,36 +54,46 @@ def load_artifacts(path_patterns: Iterable[str]) -> Iterable[Artifact]:
                     yield Artifact(**artifact)
 
 
-def main() -> None:
-    parser = ArgumentParser()
-    parser.add_argument("-a", "--artifacts", required=True, action="append", help="artifact configs")
-    parser.add_argument("-r", "--requirements", default=[], action="append", help="requirements to resolve")
-    parser.add_argument("--prefer-older", default=False, action="store_true", help="prefer older versions")
-    parser.add_argument(
-        "--disable-dependency-graph", default=False, action="store_true", help="disable dependency graph"
-    )
-    parser.add_argument(
-        "--disable-dependency-resolution", default=False, action="store_true", help="disable dependency resolution"
-    )
-    parser.add_argument(
-        "--disable-artifact-resolution",
-        default=False,
-        action="store_true",
-        help="disable artifact resolution",
-    )
-    parser.add_argument(
-        "--log-level", default="WARNING", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="log level"
-    )
-
-    args = parser.parse_args()
-    logging.basicConfig(level=args.log_level, stream=sys.stderr)
-
+def load_artifacts_registry(artifacts: Iterable[str]) -> ArtifactRegistry:
     registry = ArtifactRegistry()
-    for artifact in load_artifacts(args.artifacts):
+    for artifact in load_artifacts(artifacts):
         registry.declare_artifact(artifact)
 
-    requirements = set(args.requirements) or registry.caches.keys()
-    provider = ArtifactProvider(registry=registry, prefer_newer=not args.prefer_older)
+    return registry
+
+
+@click.group()
+@click.option(
+    "--log-level", default="WARNING", type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]), help="log level"
+)
+def main(log_level: str) -> None:
+    import pdb
+
+    pdb.set_trace()
+    logging.basicConfig(level=log_level, stream=sys.stderr)
+
+
+@click.command()
+@click.option("-a", "--artifacts", default=[], multiple=True, required=True, help="defined artifacts")
+@click.option("-r", "--requirements", default=[], multiple=True, help="requirements to resolve")
+@click.option("--prefer-older", is_flag=True, help="prefer older versions")
+@click.option("--disable-dependency-graph", is_flag=True, help="disable dependency graph")
+@click.option("--disable-dependency-resolution", is_flag=True, help="disable dependency resolution")
+@click.option("--disable-artifact-resolution", is_flag=True, help="disable artifact resolution")
+def resolve(
+    artifacts: List[str],
+    requirements: List[str],
+    prefer_older: bool,
+    disable_dependency_graph: bool,
+    disable_dependency_resolution: bool,
+    disable_artifact_resolution: bool,
+) -> None:
+    registry = load_artifacts_registry(artifacts)
+
+    if not requirements:
+        requirements = list(registry.caches.keys())
+
+    provider = ArtifactProvider(registry=registry, prefer_newer=not prefer_older)
     reporter = BaseReporter()
     resolver: Resolver = Resolver(provider, reporter)
 
@@ -95,12 +105,12 @@ def main() -> None:
     else:
         display_resolution(
             Resolution(result=result),
-            args.disable_dependency_graph,
-            args.disable_dependency_resolution,
-            args.disable_artifact_resolution,
+            disable_dependency_graph,
+            disable_dependency_resolution,
+            disable_artifact_resolution,
         )
-        sys.exit(0)
 
 
 if __name__ == "__main__":
+    main.add_command(resolve)
     main()

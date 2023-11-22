@@ -66,6 +66,11 @@ class Artifact(BaseModel):
     def __str__(self) -> str:
         return self.requirement_string
 
+    @classmethod
+    def from_requirement_string(cls, requirement_string: str) -> "Artifact":
+        name, _, version = requirement_string.partition("==")
+        return cls(name=name.strip(), version=version.strip())
+
 
 class Resolution(BaseModel):
     result: Result[Requirement, Artifact, str]
